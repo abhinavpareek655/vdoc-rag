@@ -1,6 +1,5 @@
 import os
 import uvicorn
-import math
 from fastapi import FastAPI, UploadFile, File, Form, Request, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -45,7 +44,6 @@ reader_provider = os.environ.get("VDOCRAG_READER_PROVIDER", "gemini")
 reader = LLMReader(provider=reader_provider)
 
 uploaded_files = []  # track uploaded docs for display
-latest_docs = []  # in-memory store of last processed document chunks for literal fallback
 
 # ---------------------------------------------------------
 # Routes
@@ -81,9 +79,6 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
 
     # Extract and process text chunks
     docs = process_pdf(path)
-    # store last processed docs for literal fallback searches
-    global latest_docs
-    latest_docs = docs
     if len(docs) == 0:
         return templates.TemplateResponse(
             "index.html",
@@ -116,30 +111,6 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
 @app.post("/ask")
 async def ask_question(request: Request, question: str = Form(...)):
     """Handle user query, retrieve relevant chunks, and generate LLM answer."""
-    # Literal / exact-text fallback (fast, high precision)
-    try:
-        global latest_docs
-        lower_q = question.lower()
-        keywords = ["venue", "location", "where is", "address", "venue:"]
-        matches = [d for d in latest_docs if any(k in (d.get('text') or '').lower() for k in keywords)]
-        venue_matches = [m for m in matches if 'venue' in (m.get('text') or '').lower() or 'location' in (m.get('text') or '').lower()]
-        if venue_matches:
-            best = max(venue_matches, key=lambda x: len(x.get('text') or ''))
-            answer_text = (best.get('text') or '').strip()
-            sources = [{"page": best['metadata'].get('page'), "text": answer_text}]
-            chunk_preview = [{
-                "index": 1,
-                "page": best['metadata'].get('page'),
-                "bbox": best['metadata'].get('bbox'),
-                "text": answer_text if len(answer_text) < 400 else answer_text[:400] + '...'
-            }]
-            return templates.TemplateResponse(
-                "index.html",
-                {"request": request, "uploaded": uploaded_files, "answer": answer_text, "question": question, "sources": sources, "chunks": chunk_preview},
-            )
-    except Exception as e:
-        print("[WARN] literal fallback error:", e)
-
     # Step 1 — Embed question
     qvec = embedder.embed_text([question])[0]
 
@@ -152,25 +123,6 @@ async def ask_question(request: Request, question: str = Form(...)):
         meta = h.get("metadata", {})
         print(f"Chunk {i+1}: Page {meta.get('page')} | BBox: {meta.get('bbox')}")
         print(f"Text: {h['text'][:500]}...\n")
-
-    # Compute similarities (confidence) between query and hits by re-embedding hits
-    try:
-        hit_texts = [h['text'] for h in hits]
-        if hit_texts:
-            hit_vecs = embedder.embed_text(hit_texts)
-            def cos(a, b):
-                dot = sum(x * y for x, y in zip(a, b))
-                na = math.sqrt(sum(x * x for x in a))
-                nb = math.sqrt(sum(y * y for y in b))
-                return float(dot / (na * nb + 1e-10))
-            confidences = [cos(qvec, v) for v in hit_vecs]
-            for i, c in enumerate(confidences):
-                print(f"Hit {i+1} similarity: {c:.3f}")
-        else:
-            confidences = []
-    except Exception as e:
-        print("[WARN] similarity computation failed:", e)
-        confidences = []
 
     # Step 3 — Build context string
     context_blocks = [
@@ -190,7 +142,6 @@ async def ask_question(request: Request, question: str = Form(...)):
             "page": h["metadata"].get("page"),
             "bbox": h["metadata"].get("bbox"),
             "text": h["text"][:300] + ("..." if len(h["text"]) > 300 else ""),
-            "confidence": (confidences[i] if i < len(confidences) else None),
         }
         for i, h in enumerate(hits)
     ]

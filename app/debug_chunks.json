@@ -1,0 +1,182 @@
+[
+  {
+    "id": "text_9078364bec07451fbe7900a99835907b",
+    "text": "VDoc RAG Test Document",
+    "metadata": {
+      "source": "C:\\Users\\abhin\\OneDrive\\Desktop\\vdoc-rag-mvp\\app\\uploads\\vdoc_rag_test.pdf",
+      "page": 1,
+      "bbox": null,
+      "type": "text"
+    }
+  },
+  {
+    "id": "text_0195b06b4eed4e3a9de12f8f73380390",
+    "text": "Contains Charts, Tables, and Flyers",
+    "metadata": {
+      "source": "C:\\Users\\abhin\\OneDrive\\Desktop\\vdoc-rag-mvp\\app\\uploads\\vdoc_rag_test.pdf",
+      "page": 1,
+      "bbox": null,
+      "type": "text"
+    }
+  },
+  {
+    "id": "text_c6ec891227d44d42ab809baf2469bbc8",
+    "text": "Sample Data Table:",
+    "metadata": {
+      "source": "C:\\Users\\abhin\\OneDrive\\Desktop\\vdoc-rag-mvp\\app\\uploads\\vdoc_rag_test.pdf",
+      "page": 1,
+      "bbox": null,
+      "type": "text"
+    }
+  },
+  {
+    "id": "text_9e2edb5e2e4f42b9a344a594b904a859",
+    "text": "ID Name Score Category",
+    "metadata": {
+      "source": "C:\\Users\\abhin\\OneDrive\\Desktop\\vdoc-rag-mvp\\app\\uploads\\vdoc_rag_test.pdf",
+      "page": 1,
+      "bbox": null,
+      "type": "text"
+    }
+  },
+  {
+    "id": "text_c94b49b4eedd4f4a82a76fad15610f69",
+    "text": "1 Alice 85 A",
+    "metadata": {
+      "source": "C:\\Users\\abhin\\OneDrive\\Desktop\\vdoc-rag-mvp\\app\\uploads\\vdoc_rag_test.pdf",
+      "page": 1,
+      "bbox": null,
+      "type": "text"
+    }
+  },
+  {
+    "id": "text_db03ed6418594c0fb3451cb7ba032342",
+    "text": "2 Bob 78 B",
+    "metadata": {
+      "source": "C:\\Users\\abhin\\OneDrive\\Desktop\\vdoc-rag-mvp\\app\\uploads\\vdoc_rag_test.pdf",
+      "page": 1,
+      "bbox": null,
+      "type": "text"
+    }
+  },
+  {
+    "id": "text_24e15dd936584136ad45cdb48b74f695",
+    "text": "3 Charlie 92 A+",
+    "metadata": {
+      "source": "C:\\Users\\abhin\\OneDrive\\Desktop\\vdoc-rag-mvp\\app\\uploads\\vdoc_rag_test.pdf",
+      "page": 1,
+      "bbox": null,
+      "type": "text"
+    }
+  },
+  {
+    "id": "text_9d77d0b5b759433d899289bb7a1b79d9",
+    "text": "4 David 64 C",
+    "metadata": {
+      "source": "C:\\Users\\abhin\\OneDrive\\Desktop\\vdoc-rag-mvp\\app\\uploads\\vdoc_rag_test.pdf",
+      "page": 1,
+      "bbox": null,
+      "type": "text"
+    }
+  },
+  {
+    "id": "text_3d67b96a270944bf9b35ba358d534830",
+    "text": "5 Eva 88 A",
+    "metadata": {
+      "source": "C:\\Users\\abhin\\OneDrive\\Desktop\\vdoc-rag-mvp\\app\\uploads\\vdoc_rag_test.pdf",
+      "page": 1,
+      "bbox": null,
+      "type": "text"
+    }
+  },
+  {
+    "id": "text_7aabcd11cb544fd99fd75c591885b5e8",
+    "text": "Flyer Section: Upcoming AI Workshop",
+    "metadata": {
+      "source": "C:\\Users\\abhin\\OneDrive\\Desktop\\vdoc-rag-mvp\\app\\uploads\\vdoc_rag_test.pdf",
+      "page": 1,
+      "bbox": null,
+      "type": "text"
+    }
+  },
+  {
+    "id": "text_86c5a632d7de4c258d9bced4e8de84b4",
+    "text": "Join us for an engaging AI Workshop covering:",
+    "metadata": {
+      "source": "C:\\Users\\abhin\\OneDrive\\Desktop\\vdoc-rag-mvp\\app\\uploads\\vdoc_rag_test.pdf",
+      "page": 1,
+      "bbox": null,
+      "type": "text"
+    }
+  },
+  {
+    "id": "text_4dd5041c98f046a499bf076093f0503a",
+    "text": "- Machine Learning Basics",
+    "metadata": {
+      "source": "C:\\Users\\abhin\\OneDrive\\Desktop\\vdoc-rag-mvp\\app\\uploads\\vdoc_rag_test.pdf",
+      "page": 1,
+      "bbox": null,
+      "type": "text"
+    }
+  },
+  {
+    "id": "text_30472772897c453491075424dbdf9927",
+    "text": "- LLM Applications",
+    "metadata": {
+      "source": "C:\\Users\\abhin\\OneDrive\\Desktop\\vdoc-rag-mvp\\app\\uploads\\vdoc_rag_test.pdf",
+      "page": 1,
+      "bbox": null,
+      "type": "text"
+    }
+  },
+  {
+    "id": "text_e7f7640c0daa4146b3a30ec41d79b3e8",
+    "text": "- RAG (Retrieval Augmented Generation) Systems",
+    "metadata": {
+      "source": "C:\\Users\\abhin\\OneDrive\\Desktop\\vdoc-rag-mvp\\app\\uploads\\vdoc_rag_test.pdf",
+      "page": 1,
+      "bbox": null,
+      "type": "text"
+    }
+  },
+  {
+    "id": "table_2791fed25a254479a185f8403f6ca385",
+    "text": "[{\"ID\": \"1\", \"Name\": \"Alice\", \"Score\": \"85\", \"Category\": \"A\"}, {\"ID\": \"2\", \"Name\": \"Bob\", \"Score\": \"78\", \"Category\": \"B\"}, {\"ID\": \"3\", \"Name\": \"Charlie\", \"Score\": \"92\", \"Category\": \"A+\"}, {\"ID\": \"4\", \"Name\": \"David\", \"Score\": \"64\", \"Category\": \"C\"}, {\"ID\": \"5\", \"Name\": \"Eva\", \"Score\": \"88\", \"Category\": \"A\"}]",
+    "metadata": {
+      "source": "C:\\Users\\abhin\\OneDrive\\Desktop\\vdoc-rag-mvp\\app\\uploads\\vdoc_rag_test.pdf",
+      "page": 1,
+      "bbox": null,
+      "type": "table"
+    }
+  },
+  {
+    "id": "text_5d5f395ca35940d7aff54b1224f51940",
+    "text": "Date: November 20, 2025",
+    "metadata": {
+      "source": "C:\\Users\\abhin\\OneDrive\\Desktop\\vdoc-rag-mvp\\app\\uploads\\vdoc_rag_test.pdf",
+      "page": 2,
+      "bbox": null,
+      "type": "text"
+    }
+  },
+  {
+    "id": "text_49338ecabed84edb8c71fa11dda41ff2",
+    "text": "Venue: Innovation Hall, Tech Park",
+    "metadata": {
+      "source": "C:\\Users\\abhin\\OneDrive\\Desktop\\vdoc-rag-mvp\\app\\uploads\\vdoc_rag_test.pdf",
+      "page": 2,
+      "bbox": null,
+      "type": "text"
+    }
+  },
+  {
+    "id": "text_dd6a5828c8e64a628e0cec709e40172e",
+    "text": "Register now at: www.aiworkshop2025.com",
+    "metadata": {
+      "source": "C:\\Users\\abhin\\OneDrive\\Desktop\\vdoc-rag-mvp\\app\\uploads\\vdoc_rag_test.pdf",
+      "page": 2,
+      "bbox": null,
+      "type": "text"
+    }
+  }
+]
