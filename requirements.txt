@@ -1,0 +1,16 @@
+fastapi
+uvicorn[standard]
+python-multipart
+pdf2image
+pdfplumber
+pytesseract
+Pillow
+sentence-transformers
+transformers
+torch
+chromadb
+numpy
+pandas
+aiofiles
+openai
+layoutparser
