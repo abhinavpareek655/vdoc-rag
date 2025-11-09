@@ -1,7 +1,6 @@
 import os
 import uuid
 import json
-import ast
 from pdf2image import convert_from_path
 from PIL import Image, ImageDraw
 
@@ -42,8 +41,6 @@ def render_highlighted_pages(pdf_path, hits, output_dir=None, dpi=150):
         except Exception:
             pass
 
-    hits = hits[:1]
-
     pages_to_render = sorted({h["metadata"]["page"] for h in hits})
     pdf_images = convert_from_path(pdf_path, dpi=dpi)
     result_paths = []
@@ -57,29 +54,19 @@ def render_highlighted_pages(pdf_path, hits, output_dir=None, dpi=150):
         page_bboxes = []
 
         for h in hits:
-            meta = h.get("metadata", {})
-            if meta.get("page") != page_num:
+            meta = h["metadata"]
+            if meta["page"] != page_num:
                 continue
-            bbox = meta.get("bbox")
-            # Debug raw bbox
-            print(f"[DEBUG] page {page_num} raw bbox type: {type(bbox)} value: {bbox}")
+            bbox = meta["bbox"]
+            if not bbox or len(bbox) != 4:
+                continue
 
-            # Safe parsing: accept list/tuple or stringified list
-            try:
-                if isinstance(bbox, str):
-                    bbox = ast.literal_eval(bbox)
-                if not bbox or not isinstance(bbox, (list, tuple)) or len(bbox) != 4:
-                    print(f"[WARN] Invalid bbox for page {page_num}: {bbox}")
-                    continue
-                # Apply calibration
-                x0, y0, x1, y1 = [float(v) for v in bbox]
-                x0 = x0 * X_SCALE + X_OFFSET
-                x1 = x1 * X_SCALE + X_OFFSET
-                y0 = y0 * Y_SCALE + Y_OFFSET
-                y1 = y1 * Y_SCALE + Y_OFFSET
-            except Exception as e:
-                print(f"[ERROR] Failed to parse bbox for page {page_num}: {bbox} -> {e}")
-                continue
+            # Apply calibration
+            x0, y0, x1, y1 = [float(v) for v in bbox]
+            x0 = x0 * X_SCALE + X_OFFSET
+            x1 = x1 * X_SCALE + X_OFFSET
+            y0 = y0 * Y_SCALE + Y_OFFSET
+            y1 = y1 * Y_SCALE + Y_OFFSET
 
             left, top = max(0, min(x0, x1)), max(0, min(y0, y1))
             right, bottom = min(w_img, max(x0, x1)), min(h_img, max(y0, y1))
@@ -116,9 +103,6 @@ def render_highlighted_pages(pdf_path, hits, output_dir=None, dpi=150):
             cropped = highlighted.crop(crop_box)
         else:
             cropped = highlighted  # fallback if no bbox
-
-        # Log how many boxes were drawn
-        print(f"✅ Drew {len(page_bboxes)} boxes on page {page_num}")
 
         out_path = os.path.join(output_dir, f"highlight_page{page_num}_{uuid.uuid4().hex}.png")
         cropped.convert("RGB").save(out_path)

@@ -159,33 +159,33 @@ def process_pdf(path):
         print("[WARN] Table extraction failed:", e)
 
     # 3️⃣ Chart detection + reasoning
-    for pno, imgpath in enumerate(images, start=1):
-        try:
-            chart_crops = detect_charts(imgpath, debug=True)
-            for c in chart_crops:
-                crop_path = c["image_path"]
-                bbox = c["bbox"]
+    # for pno, imgpath in enumerate(images, start=1):
+    #     try:
+    #         chart_crops = detect_charts(imgpath, debug=True)
+    #         for c in chart_crops:
+    #             crop_path = c["image_path"]
+    #             bbox = c["bbox"]
 
-                # Run reasoning model or OCR heuristic
-                chart_res = process_chart_crop(crop_path)
-                summary = chart_res.get("summary_text", "Chart region detected.")
-                structured = chart_res.get("structured", {})
+    #             # Run reasoning model or OCR heuristic
+    #             chart_res = process_chart_crop(crop_path)
+    #             summary = chart_res.get("summary_text", "Chart region detected.")
+    #             structured = chart_res.get("structured", {})
 
-                doc = {
-                    "id": f"chart_{uuid.uuid4().hex}",
-                    "text": summary,
-                    "metadata": {
-                        "source": path,
-                        "page": pno,
-                        "type": "chart",
-                        "bbox": bbox,
-                        "image_path": crop_path,
-                        "structured": structured,
-                    },
-                }
-                items.append(doc)
+    #             doc = {
+    #                 "id": f"chart_{uuid.uuid4().hex}",
+    #                 "text": summary,
+    #                 "metadata": {
+    #                     "source": path,
+    #                     "page": pno,
+    #                     "type": "chart",
+    #                     "bbox": bbox,
+    #                     "image_path": crop_path,
+    #                     "structured": structured,
+    #                 },
+    #             }
+    #             items.append(doc)
 
-        except Exception as e:
-            print(f"[WARN] Chart detection/reasoning failed on page {pno}:", e)
+    #     except Exception as e:
+    #         print(f"[WARN] Chart detection/reasoning failed on page {pno}:", e)
 
     return items
