@@ -9,6 +9,7 @@ from app.ingest import process_pdf
 from app.indexer import ChromaIndexer
 from app.embeddings import TextImageEmbedder
 from app.reader import LLMReader
+from app.visual_highlight import render_highlighted_pages
 
 # ---------------------------------------------------------
 # Initialization
@@ -31,6 +32,10 @@ os.makedirs(STATIC_DIR, exist_ok=True)
 
 # Mount static directory
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+# Serve highlighted images
+HIGHLIGHTED_DIR = os.path.join(BASE_DIR, "highlighted")
+os.makedirs(HIGHLIGHTED_DIR, exist_ok=True)
+app.mount("/highlighted", StaticFiles(directory=HIGHLIGHTED_DIR), name="highlighted")
 
 # Load Jinja2 templates safely
 templates = Jinja2Templates(directory=TEMPLATE_DIR)
@@ -124,6 +129,15 @@ async def ask_question(request: Request, question: str = Form(...)):
         print(f"Chunk {i+1}: Page {meta.get('page')} | BBox: {meta.get('bbox')}")
         print(f"Text: {h['text'][:500]}...\n")
 
+    # Prioritize chart-type hits for chart-related questions
+    chart_keywords = ["chart", "graph", "trend", "plot", "increase", "decrease", "growth"]
+    if any(k in question.lower() for k in chart_keywords):
+        try:
+            hits = sorted(hits, key=lambda h: h.get("metadata", {}).get("type") != "chart")
+            print("[INFO] Prioritized chart-type chunks for chart-related question.")
+        except Exception as e:
+            print("[WARN] Failed to prioritize chart hits:", e)
+
     # Step 3 — Build context string
     context_blocks = [
         f"[{i+1}] {h['text']} (page: {h['metadata'].get('page')}, bbox: {h['metadata'].get('bbox')})"
@@ -134,6 +148,20 @@ async def ask_question(request: Request, question: str = Form(...)):
     # Step 4 — Ask LLM
     answer = reader.answer_question(query=question, context=context, sources=hits)
     sources = answer.get("sources", [])
+
+    # 🖼️ Generate visual highlights
+    try:
+        first_source_path = hits[0]["metadata"].get("source") if hits else None
+        highlight_paths = []
+        if first_source_path and os.path.exists(first_source_path):
+            highlight_paths = render_highlighted_pages(first_source_path, hits)
+            # convert to web URLs for template
+            highlight_urls = ["/" + os.path.relpath(p, BASE_DIR).replace("\\", "/") for p in highlight_paths]
+        else:
+            highlight_urls = []
+    except Exception as e:
+        print("[WARN] Highlight rendering failed:", e)
+        highlight_urls = []
 
     # Step 5 — Prepare chunk previews for UI
     chunk_previews = [
@@ -156,6 +184,7 @@ async def ask_question(request: Request, question: str = Form(...)):
             "question": question,
             "sources": sources,
             "chunks": chunk_previews,
+            "highlight_images": highlight_urls,
         },
     )
 

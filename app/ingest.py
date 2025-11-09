@@ -21,8 +21,10 @@ def pdf_to_images(pdf_path, dpi=200):
     """
     pages = convert_from_path(pdf_path, dpi=dpi)
     paths = []
+    tmpdir = "/tmp" if os.name != "nt" else os.path.join(os.path.dirname(__file__), "tmp")
+    os.makedirs(tmpdir, exist_ok=True)
     for i, p in enumerate(pages, start=1):
-        ppath = f"/tmp/page_{uuid.uuid4().hex}_{i}.png"
+        ppath = os.path.join(tmpdir, f"page_{uuid.uuid4().hex}_{i}.png")
         p.save(ppath, "PNG")
         paths.append(ppath)
     return paths
@@ -34,7 +36,7 @@ def ocr_image_to_blocks(image_path, min_words_per_line=3):
     This preserves full sentences like 'Venue: Delhi Convention Hall'.
     """
     img = Image.open(image_path).convert("RGB")
-    data = pytesseract.image_to_data(img, output_type=Output.DICT, config="--oem 3 --psm 6")
+    data = pytesseract.image_to_data(img, output_type=pytesseract.Output.DICT, config="--oem 3 --psm 6")
     n = len(data["text"])
     lines = {}
     for i in range(n):
@@ -149,6 +151,7 @@ def process_pdf(path):
                     "type": "table",
                     "csv_path": t["csv_path"],
                     "rows": t["rows"],
+                    "bbox": t.get("bbox"),
                 },
             }
             items.append(doc)
@@ -158,7 +161,7 @@ def process_pdf(path):
     # 3️⃣ Chart detection + reasoning
     for pno, imgpath in enumerate(images, start=1):
         try:
-            chart_crops = detect_charts(imgpath)
+            chart_crops = detect_charts(imgpath, debug=True)
             for c in chart_crops:
                 crop_path = c["image_path"]
                 bbox = c["bbox"]

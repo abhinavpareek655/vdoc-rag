@@ -55,6 +55,30 @@
           </ul>
         {% endif %}
       </div>
+      <div id="highlight-section">
+        {% if highlight_images %}
+          <h3>📄 Relevant PDF Pages:</h3>
+          <div id="highlight-gallery">
+            {% for img in highlight_images %}
+              <img src="{{ img }}?v={{ loop.index }}" class="highlight-img" 
+                   style="max-width:80%; margin:10px; border:3px solid red;" />
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <script>
+        // Clear old images before new ones are inserted
+        document.addEventListener("DOMContentLoaded", function() {
+          const form = document.querySelector("form[action='/ask']");
+          if (form) {
+            form.addEventListener("submit", () => {
+              const gallery = document.getElementById("highlight-gallery");
+              if (gallery) gallery.innerHTML = ""; // remove old images
+            });
+          }
+        });
+      </script>
     {% endif %}
   </div>
 </body>

@@ -35,6 +35,13 @@ def extract_tables_from_pdf(pdf_path: str) -> List[Dict]:
                 except Exception:
                     df.to_csv(csv_path, index=False, encoding='utf-8', errors='ignore')
 
+                # Get table bbox (approximate)
+                try:
+                    # Each table has a bounding box in page._objects['rects'] or use the table extractor
+                    table_bbox = page.find_tables()[tidx - 1].bbox  # (x0, top, x1, bottom)
+                except Exception:
+                    table_bbox = None
+
                 # create a short textual summary: columns and first N rows
                 cols = list(df.columns) if len(df.columns) > 0 else []
                 top_rows = df.head(5).to_dict(orient='records')
@@ -45,6 +52,7 @@ def extract_tables_from_pdf(pdf_path: str) -> List[Dict]:
                     'page': pno,
                     'table_index': tidx,
                     'summary_text': summary,
-                    'rows': len(df)
+                    'rows': len(df),
+                    'bbox': table_bbox
                 })
     return results
