@@ -15,6 +15,36 @@
       <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Upload & Index</button>
     </form>
 
+    <div class="mt-6 text-center">
+      <a href="/feedback_dashboard"
+         class="text-blue-700 font-semibold hover:underline">
+         🧠 Open Feedback Dashboard
+      </a>
+    </div>
+
+    <div class="mt-3 text-center">
+      <a href="/benchmark_dashboard"
+         class="text-blue-700 font-semibold hover:underline">
+         📊 Open Benchmark Dashboard
+      </a>
+    </div>
+
+    <!-- Cache Clear Button -->
+    <form action="/clear_cache" method="post" class="mb-6">
+      <button type="submit"
+              class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 w-full">
+        🧹 Clear Cache
+      </button>
+    </form>
+
+    <!-- Clear Persistent Index Button -->
+    <form action="/clear_index" method="post" class="mb-6">
+      <button type="submit"
+              class="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700 w-full">
+        🗑️ Clear Persistent Index
+      </button>
+    </form>
+
     {% if uploaded %}
       <p class="text-green-600 font-semibold mb-4">Uploaded files: {{ uploaded|join(', ') }}</p>
     {% endif %}
@@ -31,10 +61,11 @@
       <h3>🔍 Retrieved Chunks (Used in Prompt)</h3>
       <ul>
         {% for c in chunks %}
-          <li>
+          <li class="border-b border-gray-200 py-2">
             <strong>[{{ c.index }}]</strong>
             (Page: {{ c.page }}, BBox: {{ c.bbox }})<br>
-            <code>{{ c.text }}</code>
+            <code>{{ c.text }}</code><br>
+            <span class="text-sm text-gray-500">🔹 Confidence: {{ c.confidence }}%</span>
           </li>
         {% endfor %}
       </ul>
@@ -54,6 +85,19 @@
             {% endfor %}
           </ul>
         {% endif %}
+        <!-- Feedback Section -->
+        <form action="/feedback" method="post" class="mt-3 flex space-x-2">
+          <input type="hidden" name="question" value="{{ question }}">
+          <input type="hidden" name="answer" value="{{ answer }}">
+          <button type="submit" name="correctness" value="correct"
+                  class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">
+            ✅ Correct
+          </button>
+          <button type="submit" name="correctness" value="incorrect"
+                  class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
+            ❌ Incorrect
+          </button>
+        </form>
       </div>
       <div id="highlight-section">
         {% if highlight_images %}
@@ -66,6 +110,10 @@
           </div>
         {% endif %}
       </div>
+
+      {% if confidence_avg is defined %}
+        <p class="text-sm text-gray-600 mt-2">🧠 Average confidence: {{ confidence_avg }}%</p>
+      {% endif %}
 
       <script>
         // Clear old images before new ones are inserted

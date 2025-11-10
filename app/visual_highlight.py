@@ -132,7 +132,6 @@ def render_highlighted_pages(pdf_path, hits, output_dir=None, dpi=150):
 # Example usage
 if __name__ == "__main__":
     hits = [
-        {"metadata": {"page": 1, "bbox": [87, 1926, 775, 1957], "type": "text"}},
         {"metadata": {"page": 2, "bbox": [87, 222, 592, 250], "type": "text"}},
     ]
 

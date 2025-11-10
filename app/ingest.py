@@ -13,6 +13,16 @@ import pdfplumber
 from app.tables import extract_tables_from_pdf
 from app.chart_detect import detect_charts
 from app.chart_reasoner import process_chart_crop
+from app.cache_manager import load_chunks_from_cache, save_chunks_to_cache
+
+# Project-local temporary/storage directories
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TMP_DIR = os.path.join(BASE_DIR, "tmp")
+TABLES_DIR = os.path.join(BASE_DIR, "tables")
+CHARTS_DIR = os.path.join(BASE_DIR, "charts")
+os.makedirs(TMP_DIR, exist_ok=True)
+os.makedirs(TABLES_DIR, exist_ok=True)
+os.makedirs(CHARTS_DIR, exist_ok=True)
 
 
 def pdf_to_images(pdf_path, dpi=200):
@@ -21,10 +31,10 @@ def pdf_to_images(pdf_path, dpi=200):
     """
     pages = convert_from_path(pdf_path, dpi=dpi)
     paths = []
-    tmpdir = "/tmp" if os.name != "nt" else os.path.join(os.path.dirname(__file__), "tmp")
-    os.makedirs(tmpdir, exist_ok=True)
+    # Use project-local tmp directory to avoid system temp folder
+    os.makedirs(TMP_DIR, exist_ok=True)
     for i, p in enumerate(pages, start=1):
-        ppath = os.path.join(tmpdir, f"page_{uuid.uuid4().hex}_{i}.png")
+        ppath = os.path.join(TMP_DIR, f"page_{uuid.uuid4().hex}_{i}.png")
         p.save(ppath, "PNG")
         paths.append(ppath)
     return paths
@@ -76,6 +86,12 @@ def process_pdf(path):
     - Run chart reasoning model (Donut/Pix2Struct/heuristics)
     Returns: list of document chunks {id, text, metadata}
     """
+    # Check cache first
+    cached = load_chunks_from_cache(path)
+    if cached:
+        print(f"✅ Using cached chunks for {os.path.basename(path)}")
+        return cached
+
     items = []
 
     # 1️⃣ OCR text extraction (page images)
@@ -159,33 +175,40 @@ def process_pdf(path):
         print("[WARN] Table extraction failed:", e)
 
     # 3️⃣ Chart detection + reasoning
-    # for pno, imgpath in enumerate(images, start=1):
-    #     try:
-    #         chart_crops = detect_charts(imgpath, debug=True)
-    #         for c in chart_crops:
-    #             crop_path = c["image_path"]
-    #             bbox = c["bbox"]
+    for pno, imgpath in enumerate(images, start=1):
+        try:
+            chart_crops = detect_charts(imgpath, debug=True)
+            for c in chart_crops:
+                crop_path = c["image_path"]
+                bbox = c["bbox"]
 
-    #             # Run reasoning model or OCR heuristic
-    #             chart_res = process_chart_crop(crop_path)
-    #             summary = chart_res.get("summary_text", "Chart region detected.")
-    #             structured = chart_res.get("structured", {})
+                # Run reasoning model or OCR heuristic
+                chart_res = process_chart_crop(crop_path)
+                summary = chart_res.get("summary_text", "Chart region detected.")
+                structured = chart_res.get("structured", {})
 
-    #             doc = {
-    #                 "id": f"chart_{uuid.uuid4().hex}",
-    #                 "text": summary,
-    #                 "metadata": {
-    #                     "source": path,
-    #                     "page": pno,
-    #                     "type": "chart",
-    #                     "bbox": bbox,
-    #                     "image_path": crop_path,
-    #                     "structured": structured,
-    #                 },
-    #             }
-    #             items.append(doc)
+                doc = {
+                    "id": f"chart_{uuid.uuid4().hex}",
+                    "text": summary,
+                    "metadata": {
+                        "source": path,
+                        "page": pno,
+                        "type": "chart",
+                        "bbox": bbox,
+                        "image_path": crop_path,
+                        "structured": structured,
+                    },
+                }
+                items.append(doc)
 
-    #     except Exception as e:
-    #         print(f"[WARN] Chart detection/reasoning failed on page {pno}:", e)
+        except Exception as e:
+            print(f"[WARN] Chart detection/reasoning failed on page {pno}:", e)
+
+    # Save to cache for future reuse
+    try:
+        save_chunks_to_cache(path, items)
+        print(f"💾 Cached {len(items)} chunks for {os.path.basename(path)}")
+    except Exception as e:
+        print("[WARN] Failed to save cache:", e)
 
     return items

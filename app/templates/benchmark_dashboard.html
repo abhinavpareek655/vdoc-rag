@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>📊 Embedding Benchmark Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-blue-50 text-blue-800 min-h-screen flex flex-col items-center py-8">
+  <div class="bg-white shadow-lg rounded-xl p-8 w-full max-w-5xl">
+    <h1 class="text-2xl font-bold text-center mb-6">📊 Embedding Model Benchmark</h1>
+
+    <form action="/run_benchmark" method="post" class="space-y-3 mb-6">
+      <label class="block text-sm font-semibold">Enter model names (comma-separated)</label>
+      <input type="text" name="models"
+             value="all-MiniLM-L6-v2, multi-qa-MiniLM-L6-cos-v1, models/vdoc_feedback_tuned/latest"
+             class="border rounded w-full p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+             required>
+
+      <div class="flex space-x-4">
+        <div class="flex-1">
+          <label class="block text-sm font-semibold">Chunk Size</label>
+          <input type="number" name="chunk_size" value="200" class="border p-2 rounded w-full">
+        </div>
+        <div class="flex-1">
+          <label class="block text-sm font-semibold">Top-K</label>
+          <input type="number" name="top_k" value="5" class="border p-2 rounded w-full">
+        </div>
+      </div>
+
+      <button type="submit"
+              class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 w-full mt-3">
+        🚀 Run Benchmark
+      </button>
+    </form>
+
+    {% if results %}
+    <h2 class="text-xl font-semibold mb-4">📈 Results</h2>
+    <table class="w-full border border-gray-300 text-sm mb-6">
+      <thead class="bg-blue-100 text-blue-800">
+        <tr>
+          <th class="border px-3 py-1 text-left">Model</th>
+          <th class="border px-3 py-1">Precision</th>
+          <th class="border px-3 py-1">Recall</th>
+          <th class="border px-3 py-1">MRR</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in results %}
+        <tr class="Border-b hover:bg-blue-50">
+          <td class="px-3 py-1">{{ r.model }}</td>
+          <td class="px-3 py-1 text-center">{{ r.precision }}</td>
+          <td class="px-3 py-1 text-center">{{ r.recall }}</td>
+          <td class="px-3 py-1 text-center">{{ r.mrr }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      {% if plot_precision %}
+        <img src="{{ plot_precision }}" class="rounded shadow">
+      {% endif %}
+      {% if plot_recall %}
+        <img src="{{ plot_recall }}" class="rounded shadow">
+      {% endif %}
+      {% if plot_mrr %}
+        <img src="{{ plot_mrr }}" class="rounded shadow">
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% if message %}
+      <p class="text-center text-red-700 font-semibold">{{ message }}</p>
+    {% endif %}
+
+    <div class="text-center mt-8">
+      <a href="/" class="text-blue-600 hover:underline">← Back to Main Interface</a>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🧠 VDoc Feedback Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-blue-50 text-blue-800 min-h-screen flex flex-col items-center py-8">
+  <div class="bg-white shadow-lg rounded-xl p-8 w-full max-w-4xl">
+    <h1 class="text-2xl font-bold mb-4 text-center">🧠 Feedback Dashboard</h1>
+
+    <p class="text-center text-gray-600 mb-4">{{ summary }}</p>
+
+    <div class="grid grid-cols-3 gap-4 text-center mb-6">
+      <div class="bg-green-100 p-3 rounded-lg">
+        <p class="text-xl font-bold text-green-700">{{ correct }}</p>
+        <p class="text-sm text-green-800">Correct</p>
+      </div>
+      <div class="bg-red-100 p-3 rounded-lg">
+        <p class="text-xl font-bold text-red-700">{{ incorrect }}</p>
+        <p class="text-sm text-red-800">Incorrect</p>
+      </div>
+      <div class="bg-blue-100 p-3 rounded-lg">
+        <p class="text-xl font-bold text-blue-700">{{ total }}</p>
+        <p class="text-sm text-blue-800">Total Feedback</p>
+      </div>
+    </div>
+
+    <!-- Train model -->
+    <form action="/train_feedback_model" method="post" class="text-center mb-8">
+      <button type="submit"
+              class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+        🚀 Train Model from Feedback
+      </button>
+    </form>
+
+    {% if message %}
+      <div class="bg-gray-50 border-l-4 border-blue-400 p-3 mb-6">
+        <p class="text-gray-700 font-medium">{{ message }}</p>
+        <pre class="text-xs text-gray-600 mt-2 whitespace-pre-wrap">{{ train_output }}</pre>
+      </div>
+    {% endif %}
+
+    <!-- Feedback log -->
+    <h2 class="text-xl font-semibold mb-3">📜 Recent Feedback</h2>
+    <div class="max-h-96 overflow-y-auto border rounded p-3 bg-gray-50">
+      {% for fb in feedback_data %}
+        <div class="mb-3 border-b pb-2">
+          <p class="text-sm"><strong>🕓</strong> {{ fb.timestamp }}</p>
+          <p class="text-sm"><strong>❓</strong> {{ fb.question }}</p>
+          <p class="text-sm"><strong>💬</strong> {{ fb.answer }}</p>
+          <p class="text-sm">
+            <strong>✅</strong> {{ fb.correctness|capitalize }}
+          </p>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="text-center mt-8">
+      <a href="/" class="text-blue-600 hover:underline">← Back to Main Interface</a>
+    </div>
+  </div>
+</body>
+</html>
